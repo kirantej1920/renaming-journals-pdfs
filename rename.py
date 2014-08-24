@@ -118,11 +118,22 @@ for fileName in files:
 			bufferStrUpper = bufferStrUpper.replace(",","_")
 			bufferStrUpper = bufferStrUpper.replace(" ","_")
 			bufferStrUpper = bufferStrUpper.replace('"',"_")
+			bufferStrUpper = bufferStrUpper.replace('&',"_")
+			bufferStrUpper = bufferStrUpper.replace(':',"_")
+			bufferStrUpper = bufferStrUpper.replace('#',"_")
+			bufferStrUpper = bufferStrUpper.replace('%',"_")
+			bufferStrUpper = bufferStrUpper.replace('@',"_")
+			bufferStrUpper = bufferStrUpper.replace('!',"_")
+			bufferStrUpper = bufferStrUpper.replace('*',"_")
+			bufferStrUpper = bufferStrUpper.replace('+',"_")
+			bufferStrUpper = bufferStrUpper.replace('/',"_")
+			bufferStrUpper = bufferStrUpper.replace('.',"_")
 			finalName += bufferStrUpper.replace("\n","_")
+	finalName = re.sub('_+','_',finalName)
 	print "FinalName " + finalName
 	finalName = finalName.strip("_") #Removing leading/trailing underscores (_)
 	if finalName == "":
-		finalName = dirName + "/NOT_RENAMED/" + fileName1
+		finalName = dirName + "/NOT_RENAMED/" + fileName
 		print "\tNot Possible to rename " + fileName + "\n"
 	else:
         	renamed += 1
