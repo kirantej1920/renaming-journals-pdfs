@@ -20,12 +20,14 @@ tool = "pdftotext"
 options = " -l 1 "
 #options = " -f 2 -l 2 "
 for fileName in files:
+    if fileName.find("/RENAMED/")>=0:
+	continue
     dirName = os.path.dirname(fileName)
     if not os.path.exists(dirName+"/RENAMED"):
     	os.makedirs(dirName+"/RENAMED")
     if not os.path.exists(dirName+"/NOT_RENAMED"):
     	os.makedirs(dirName+"/NOT_RENAMED")
-    print "Processing : " + fileName
+    #print "Processing : " + fileName
     try:
         if fileName.lower()[-3:] != "pdf":
 	    print "\t -- Not a PDF File\n"
@@ -43,6 +45,7 @@ for fileName in files:
 	fp = open(textFileName, "rb")
 	count = 0
 	finalName = ""
+	alreadyRead = ""
 	startReading = 0
 	if options.find("2") > 0:
 		startReading = 1
@@ -110,39 +113,59 @@ for fileName in files:
 			break
 		if bufferStrUpper.find("B.A") >= 0:
 			break
-		if bufferStrUpper.find("BA") >= 0:
+		if bufferStrUpper.find("DEPT") >= 0:
 			break
+		if bufferStrUpper.find("DEPARTMENT") >= 0:
+			break
+		#if bufferStrUpper.find("BA") >= 0:
+		#	break
 		if bufferStrUpper.find("ABSTRACT") >= 0:
 			break
+		bufferStrUpper = bufferStrUpper.replace(",","_")
+		bufferStrUpper = bufferStrUpper.replace(" ","_")
+		bufferStrUpper = bufferStrUpper.replace('"',"_")
+		bufferStrUpper = bufferStrUpper.replace('&',"_")
+		bufferStrUpper = bufferStrUpper.replace(':',"_")
+		bufferStrUpper = bufferStrUpper.replace('#',"_")
+		bufferStrUpper = bufferStrUpper.replace('%',"_")
+		bufferStrUpper = bufferStrUpper.replace('@',"_")
+		bufferStrUpper = bufferStrUpper.replace('!',"_")
+		bufferStrUpper = bufferStrUpper.replace('*',"_")
+		bufferStrUpper = bufferStrUpper.replace('+',"_")
+		bufferStrUpper = bufferStrUpper.replace('/',"_")
+		bufferStrUpper = bufferStrUpper.replace('.',"_")
 		if startReading == 1:
-			bufferStrUpper = bufferStrUpper.replace(",","_")
-			bufferStrUpper = bufferStrUpper.replace(" ","_")
-			bufferStrUpper = bufferStrUpper.replace('"',"_")
-			bufferStrUpper = bufferStrUpper.replace('&',"_")
-			bufferStrUpper = bufferStrUpper.replace(':',"_")
-			bufferStrUpper = bufferStrUpper.replace('#',"_")
-			bufferStrUpper = bufferStrUpper.replace('%',"_")
-			bufferStrUpper = bufferStrUpper.replace('@',"_")
-			bufferStrUpper = bufferStrUpper.replace('!',"_")
-			bufferStrUpper = bufferStrUpper.replace('*',"_")
-			bufferStrUpper = bufferStrUpper.replace('+',"_")
-			bufferStrUpper = bufferStrUpper.replace('/',"_")
-			bufferStrUpper = bufferStrUpper.replace('.',"_")
 			finalName += bufferStrUpper.replace("\n","_")
+		if startReading == 0:
+			alreadyRead += bufferStrUpper.replace("\n","_")
+	if startReading ==0:
+		finalName = alreadyRead
 	finalName = re.sub('_+','_',finalName)
-	print "FinalName " + finalName
+	#print "FinalName " + finalName
 	finalName = finalName.strip("_") #Removing leading/trailing underscores (_)
 	if finalName == "":
-		finalName = dirName + "/NOT_RENAMED/" + fileName
+		if finalName.find("RENAMED") < 0:
+			finalName = dirName + "/NOT_RENAMED/" + fileName[fileName.rfind("/")+1:]
+		else:
+			finalName = dirName + "/" + fileName[fileName.rfind("/")+1:]
 		print "\tNot Possible to rename " + fileName + "\n"
 	else:
         	renamed += 1
+		finalName = finalName[0:250]
 		finalName += ".pdf"
-		finalName = dirName + "/RENAMED/" + finalName
+		if finalName.find("RENAMED") < 0:
+			finalName = dirName + "/RENAMED/" + finalName[finalName.rfind("/")+1:]
+		else:
+			finalName = dirName + "/" + finalName[finalName.rfind("/")+1:]
+			
 	#finalName = getFullName(finalName).replace(" ","_").strip()
 	#finalName = finalName.replace(",","")
 	#finalName = finalName.replace("\"","")
-        os.rename(getFullName(fileName1), finalName.strip())
+	#print "FileName " +fileName
+	#print "FinalName " +finalName.strip()
+	cmd = "mv '" + fileName + "' '" + finalName + "'"
+	os.system(cmd)
+        #os.rename(os.path.abspath(fileName), os.path.abspath(finalName.strip()))
        	print('\tOriginal file: {} | New title: {}\n'.format(fileName, finalName))
     except Exception as e:
         print(e)
