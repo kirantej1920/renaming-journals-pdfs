@@ -18,6 +18,8 @@ renamed = 0
 totalPdfFiles = 0
 alreadyRenamed = 0
 notPossibleToRename = 0
+repeatCount = 0
+myMap = {}
 tool = "pdftotext"
 options = " -l 1 "
 #options = " -f 2 -l 2 "
@@ -165,6 +167,15 @@ for fileName in files:
 			finalName = dirName + "/RENAMED/" + finalName[finalName.rfind("/")+1:]
 		else:
 			finalName = dirName + "/" + finalName[finalName.rfind("/")+1:]
+		finalName = finalName.replace("_",white_space_seperator)  # Seperator should be changed initially 
+		if os.path.isfile(finalName):
+			if myMap.has_key(finalName):
+				repeatCount = myMap.get(finalName)
+				repeatCount += 1
+			else:
+				repeatCount = 1	
+			finalName = finalName.replace(".pdf",str("_"+str(repeatCount)+".pdf"))
+		myMap[finalName] = repeatCount
 		cmd = "mv '" + fileName + "' '" + finalName + "'"
 		os.system(cmd)
 			
@@ -173,7 +184,6 @@ for fileName in files:
 	#finalName = finalName.replace("\"","")
 	#print "FileName " +fileName
 	#print "FinalName " +finalName.strip()
-	#finalName = finalName.replace("_",white_space_seperator)  # Seperator should be changed initially 
 	#if move == 1:
         #os.rename(os.path.abspath(fileName), os.path.abspath(finalName.strip()))
        	print('\tOriginal file: {} | New title: {}\n'.format(fileName, finalName))
